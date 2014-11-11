@@ -1,0 +1,107 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1, maximum-scale=1')
+    title TwigExcelBundle
+
+    link(rel='stylesheet', type='text/css', href='build/build.css')
+
+  body
+
+    article
+
+      section
+        h1 TwigExcelBundle
+        h3 Mewes Kochheim
+
+      section.emphatic-text(data-bespoke-backdrop='emphatic')
+        h3 Pure PhpExcel
+        pre
+          code.language-javascript.
+            $objPHPExcel = new PHPExcel();
+            $objPHPExcel->setActiveSheetIndex(0);
+            $objPHPExcel->getActiveSheet()->setTitle('Worksheet');
+            $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setSize(18);
+            $objPHPExcel->getActiveSheet()->setCellValue('A1', 'Values');
+            for ($i = 0; $i < count($data); $i++) {
+              $objPHPExcel->getActiveSheet()->SetCellValue('B' . $i, $data[i]);
+            }
+            $objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+            $objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+
+      section
+        h3 So how do we integrate this mess into our Symfony project?
+
+      section
+        h3 We could put it in our controller.
+        h4 But that way we lose our controller/view separation.
+
+      section
+        h3 So how do we integrate this mess into our view layer?
+
+      section
+        h3 We could use PHP as our templating language.
+        h4 But that way our view layer isn't as clean and secure.
+
+      section
+        h3 So why don't we extend Twig to support Excel creation?
+        h4 I know - crazy!
+
+      section.emphatic-text(data-bespoke-backdrop='emphatic')
+        h3 Twigified PhpExcel
+        pre
+          code.language-javascript.
+            {% xlsdocument %}
+              {% xlssheet 'Worksheet' %}
+                {% xlsrow %}
+                  {% xlscell { style: { font: { size: '18' } } } %}Values{% endxlscell %}
+                {% endxlsrow %}
+                {% for value in data %}
+                  {% xlsrow %}
+                    {% xlscell %}{{ value }}{% endxlscell %}
+                  {% endxlsrow %}
+                {% endfor %}
+              {% endxlssheet %}
+            {% endxlsdocument %}
+
+      section
+        h3 Benefits
+        ul
+          li Pure Twig
+          li Built-in caching
+          li Configurable with @Route and @Template
+          li Smooth Symfony integration
+          li Controller actions can be reused
+          li Composer support
+          li Supports creation of XLS, XLSX, CSV and PDF files
+
+      section.emphatic-text(data-bespoke-backdrop='emphatic')
+        h3 Controller example
+        pre
+          code.language-javascript.
+            class HelloController
+            {
+              /**
+               * @Route("/hello.{_format}", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"})
+               * @Template("AcmeHelloBundle:Hello:index.xls.twig")
+               */
+              public function indexAction($name)
+              {
+                return array('data' => array('La', 'Le', 'Lu'));
+              }
+            }
+
+      section
+        h2 That's it!
+        ul
+          li Get it on Packagist
+            ul
+              li https://packagist.org/packages/mewesk/twig-excel-bundle
+          li Fork it on GitHub
+            ul
+              li https://github.com/MewesK/TwigExcelBundle
+          li
+            b Thanks for listening!
+
+    script(src='build/build.js')
