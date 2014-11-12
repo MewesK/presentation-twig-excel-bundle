@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>TwigExcelBundle</title>
+    <link rel="stylesheet" type="text/css" href="build/build.css">
+  </head>
+  <body>
+    <article>
+      <section>
+        <h1>TwigExcelBundle</h1>
+        <h3>Mewes Kochheim</h3>
+      </section>
+      <section data-bespoke-backdrop="emphatic" class="emphatic-text">
+        <h3>Pure PhpExcel</h3>
+        <pre><code class="language-javascript">$objPHPExcel = new PHPExcel();
+$objPHPExcel->setActiveSheetIndex(0);
+$objPHPExcel->getActiveSheet()->setTitle('Worksheet');
+$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setSize(18);
+$objPHPExcel->getActiveSheet()->setCellValue('A1', 'Values');
+for ($i = 0; $i < count($data); $i++) {
+  $objPHPExcel->getActiveSheet()->SetCellValue('B' . $i, $data[i]);
+}
+$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+</code></pre>
+      </section>
+      <section>
+        <h3>So how do we integrate this mess into our Symfony project?</h3>
+      </section>
+      <section>
+        <h3>We could put it in our controller.</h3>
+        <h4>But that way we lose our controller/view separation.</h4>
+      </section>
+      <section>
+        <h3>So how do we integrate this mess into our view layer?</h3>
+      </section>
+      <section>
+        <h3>We could use PHP as our templating language.</h3>
+        <h4>But that way our view layer isn't as clean and secure.</h4>
+      </section>
+      <section>
+        <h3>So why don't we extend Twig to support Excel creation?</h3>
+        <h4>I know - crazy!</h4>
+      </section>
+      <section data-bespoke-backdrop="emphatic" class="emphatic-text">
+        <h3>Twigified PhpExcel</h3>
+        <pre><code class="language-javascript">{% xlsdocument %}
+  {% xlssheet 'Worksheet' %}
+    {% xlsrow %}
+      {% xlscell { style: { font: { size: '18' } } } %}Values{% endxlscell %}
+    {% endxlsrow %}
+    {% for value in data %}
+      {% xlsrow %}
+        {% xlscell %}{{ value }}{% endxlscell %}
+      {% endxlsrow %}
+    {% endfor %}
+  {% endxlssheet %}
+{% endxlsdocument %}
+</code></pre>
+      </section>
+      <section>
+        <h3>Benefits</h3>
+        <ul>
+          <li>Pure Twig (10 custom tags, over 100 properties)</li>
+          <li>Built-in caching</li>
+          <li>Supports creation of XLS, XLSX, CSV and PDF files</li>
+          <li>Smooth Symfony integration</li>
+          <li>Configurable with @Route and @Template</li>
+          <li>Controller actions can be reused</li>
+        </ul>
+      </section>
+      <section data-bespoke-backdrop="emphatic" class="emphatic-text">
+        <h3>Controller example</h3>
+        <pre><code class="language-javascript">class HelloController
+{
+  /**
+   * @Route("/hello.{_format}", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"})
+   * @Template("AcmeHelloBundle:Hello:index.xls.twig")
+   */
+  public function indexAction($name)
+  {
+    return array('data' => array('La', 'Le', 'Lu'));
+  }
+}
+</code></pre>
+      </section>
+      <section data-bespoke-backdrop="emphatic" class="emphatic-text">
+        <h3>Footer / Header example</h3>
+        <ul>
+          <li>No more messing around with &L, &C and &R</li>
+        </ul>
+        <pre><code class="language-javascript">{% xlsheader %}
+  {% xlsleft %}Left part{% endxlsleft %}
+  {% xlscenter %}Center part{% endxlscenter %}
+  {% xlsright %}Right part{% endxlsright %}
+{% endxlsheader %}
+</code></pre>
+      </section>
+      <section data-bespoke-backdrop="emphatic" class="emphatic-text">
+        <h3>Drawing example</h3>
+        <ul>
+          <li>Can be used in headers / footers</li>
+        </ul>
+        <pre><code class="language-javascript">{% xlsdrawing '/test.png' {
+  description: 'Test',
+  offsetX: 10,
+  offsetY: 10
+} %}
+</code></pre>
+      </section>
+      <section>
+        <h2>That's it!</h2>
+        <ul>
+          <li>Get it on Packagist
+            <ul>
+              <li>https://packagist.org/packages/mewesk/twig-excel-bundle</li>
+            </ul>
+          </li>
+          <li>Fork it on GitHub
+            <ul>
+              <li>https://github.com/MewesK/TwigExcelBundle</li>
+            </ul>
+          </li>
+          <li><b>Questions?</b></li>
+          <li><b>Thanks for listening!</b></li>
+        </ul>
+      </section>
+      <section data-bespoke-backdrop="emphatic" class="emphatic-text">
+        <h3>Bonus: How it works</h3><img src="images/twig_structure_row.png">
+        <pre><code class="language-javascript">->write('$rowIndex = ')->subcompile($this->getNode('index'))->raw(';'.PHP_EOL)
+->write('$phpExcel->startRow($rowIndex);'.PHP_EOL)
+->subcompile($this->getNode('body'))
+->write('$phpExcel->endRow();'.PHP_EOL);
+</code></pre>
+      </section>
+      <section data-bespoke-backdrop="emphatic" class="emphatic-text">
+        <h3>Bonus: How it works</h3><img src="images/twig_structure_cell.png">
+        <pre><code class="language-javascript">->write('$cellIndex = ')->subcompile($this->getNode('index'))->raw(';'.PHP_EOL)
+->write("ob_start();\n")
+->subcompile($this->getNode('body'))
+->write('$cellValue = trim(ob_get_clean());'.PHP_EOL)
+->write('$cellProperties = ')->subcompile($this->getNode('properties'))->raw(';'.PHP_EOL)
+->write('$phpExcel->startCell($cellIndex, $cellValue, $cellProperties);'.PHP_EOL)
+->write('$phpExcel->endCell();'.PHP_EOL);
+</code></pre>
+      </section>
+      <section>
+        <h2>That's it! Really!</h2>
+        <ul>
+          <li>Get it on Packagist
+            <ul>
+              <li>https://packagist.org/packages/mewesk/twig-excel-bundle</li>
+            </ul>
+          </li>
+          <li>Fork it on GitHub
+            <ul>
+              <li>https://github.com/MewesK/TwigExcelBundle</li>
+            </ul>
+          </li>
+          <li><b>Thanks for listening!</b></li>
+        </ul>
+      </section>
+    </article>
+    <script src="build/build.js"></script>
+  </body>
+</html>
