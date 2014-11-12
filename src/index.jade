@@ -68,13 +68,12 @@ html
       section
         h3 Benefits
         ul
-          li Pure Twig
+          li Pure Twig (10 custom tags, over 100 properties)
           li Built-in caching
-          li Configurable with @Route and @Template
-          li Smooth Symfony integration
-          li Controller actions can be reused
-          li Composer support
           li Supports creation of XLS, XLSX, CSV and PDF files
+          li Smooth Symfony integration
+          li Configurable with @Route and @Template
+          li Controller actions can be reused
 
       section.emphatic-text(data-bespoke-backdrop='emphatic')
         h3 Controller example
@@ -92,8 +91,69 @@ html
               }
             }
 
+      section.emphatic-text(data-bespoke-backdrop='emphatic')
+        h3 Footer / Header example
+        ul
+          li No more messing around with &L, &C and &R
+        pre
+          code.language-javascript.
+            {% xlsheader %}
+              {% xlsleft %}Left part{% endxlsleft %}
+              {% xlscenter %}Center part{% endxlscenter %}
+              {% xlsright %}Right part{% endxlsright %}
+            {% endxlsheader %}
+
+      section.emphatic-text(data-bespoke-backdrop='emphatic')
+        h3 Drawing example
+        ul
+          li Can be used in headers / footers
+        pre
+          code.language-javascript.
+            {% xlsdrawing '/test.png' {
+              description: 'Test',
+              offsetX: 10,
+              offsetY: 10
+            } %}
+
       section
         h2 That's it!
+        ul
+          li Get it on Packagist
+            ul
+              li https://packagist.org/packages/mewesk/twig-excel-bundle
+          li Fork it on GitHub
+            ul
+              li https://github.com/MewesK/TwigExcelBundle
+          li
+            b Questions?
+          li
+            b Thanks for listening!
+
+      section.emphatic-text(data-bespoke-backdrop='emphatic')
+        h3 Bonus: How it works
+        img(src= "images/twig_structure_row.png")
+        pre
+          code.language-javascript.
+            ->write('$rowIndex = ')->subcompile($this->getNode('index'))->raw(';'.PHP_EOL)
+            ->write('$phpExcel->startRow($rowIndex);'.PHP_EOL)
+            ->subcompile($this->getNode('body'))
+            ->write('$phpExcel->endRow();'.PHP_EOL);
+
+      section.emphatic-text(data-bespoke-backdrop='emphatic')
+        h3 Bonus: How it works
+        img(src= "images/twig_structure_cell.png")
+        pre
+          code.language-javascript.
+            ->write('$cellIndex = ')->subcompile($this->getNode('index'))->raw(';'.PHP_EOL)
+            ->write("ob_start();\n")
+            ->subcompile($this->getNode('body'))
+            ->write('$cellValue = trim(ob_get_clean());'.PHP_EOL)
+            ->write('$cellProperties = ')->subcompile($this->getNode('properties'))->raw(';'.PHP_EOL)
+            ->write('$phpExcel->startCell($cellIndex, $cellValue, $cellProperties);'.PHP_EOL)
+            ->write('$phpExcel->endCell();'.PHP_EOL);
+
+      section
+        h2 That's it! Really!
         ul
           li Get it on Packagist
             ul
